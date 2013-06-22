@@ -2,25 +2,24 @@
 require 'JSON.php'; // Built in json_decode is BROKEN by razor JSON responses
 
 class razor
-{
+{   
     
-    var $apiConfig = array(
+    protected $apiConfig = array(
       'url' => "http://localhost:8026/razor/api/",
     );
 
-    var $json;
+    protected $json;
     
     /* ------------------------------------------------------------------------------------------------------- */
     
-    function __construct()
+    public function __construct()
     {
         $this->json = new Services_JSON(SERVICES_JSON_LOOSE_TYPE);
-        
     }
     
     /* ------------------------------------------------------------------------------------------------------- */
         
-    public function http_get($url, &$results,&$errMsg = null)
+    protected function http_get($url, &$results,&$errMsg = null)
     {
         $ch = curl_init();
 
@@ -51,7 +50,7 @@ class razor
 
     /* ------------------------------------------------------------------------------------------------------- */
         
-    public function http_post($url, $post_data, &$results,&$errMsg = null)
+    protected function http_post($url, $post_data, &$results,&$errMsg = null)
     {
         $ch = curl_init();
 
@@ -82,7 +81,7 @@ class razor
     
     /* ------------------------------------------------------------------------------------------------------- */
 
-    public function http_delete($url, &$results,&$errMsg = null)
+    protected function http_delete($url, &$results,&$errMsg = null)
     {
         $ch = curl_init();
 
@@ -97,6 +96,8 @@ class razor
 
         $response = $this->json->decode($response);
 
+//        print_r($response);
+        
         if($response['http_err_code'] != 202)
         {
                 $errMsg = $response['result'];
@@ -111,12 +112,12 @@ class razor
 
     /* ------------------------------------------------------------------------------------------------------- */
     
-    public function get_nodes()
+    public function get_node($uuid = '')
     {
         $results = null;
         $errMsg = null;
         
-        $url = $this->apiConfig['url'] . "node/";
+        $url = $this->apiConfig['url'] . "node/$uuid";
         
         if(!$this->http_get($url,$results,$errMsg))
         {
@@ -226,8 +227,7 @@ class razor
         }
         else
         {
-            print_r($results);
-            return $results;
+            return true;
         }
     }
 

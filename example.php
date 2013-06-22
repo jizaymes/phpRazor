@@ -5,25 +5,23 @@ $razor = new razor();
 
 
 // Get Nodes
-//$razor->get_nodes();
+$nodes = $razor->get_node();
+
+
 
 // Get Tag by Tag
 $args = array(
-    'name' => 'amCloud-vlan800',
-    'tag' => 'amCloud-vlan800',
+    'name' => 'tagname',
+    'tag' => 'tag',
 );
-$uuid = $razor->get_tagUUID_by_tag("amCloud-vlan800");
+$uuid = $razor->get_tagUUID_by_tag("tag");
 
 if(!$uuid)
 {
   // If no tag exists, add it
-  echo("Creating tag" . PHP_EOL);
-
-  // Add a tag
   if($res = $razor->add_tag($args))
   {
       $uuid = $res['@uuid'];
-
   }
 }
 
@@ -39,16 +37,18 @@ $args = array(
 
 $tm = $razor->get_tag_matcher($args);
 
+// If tag matcher doesnt exist, create it
 if(!$tm)
 {
   if($res = $razor->add_tag_matcher($args))
   {
-    print_r($res);  
+    $tm = $razor->get_tag_matcher($args);
   }
 }
-else
+
+if($razor->delete_tag_matcher($uuid,$tm['@uuid']))
 {
-  print_r($tm);
-  print_r($razor->delete_tag_matcher($uuid,$tm['@uuid']));
+    $razor->delete_tag($uuid);
+    print_r($razor->get_tag($uuid)); // displays nothing
 }
 ?>

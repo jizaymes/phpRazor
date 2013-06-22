@@ -1,0 +1,43 @@
+phpRazor
+========
+
+phpRazor a PHP class for working with the Puppet Labs Razor REST API. It is under active development
+and currently only supports a handfull of methods for interacting with the Razor API.
+
+Nodes
+- get_node([optional uuid])  -- if none specified, all tags will be returned
+
+Tags
+- add_tag([array of arguments])  -- array('name' => 'name', 'tag' => 'tag')
+- get_tag([optional uuid])  -- if none specified, all tags will be returned
+- delete_tag([uuid])
+- get_tagUUID_by_tag([tag name])
+
+Tag Matcher
+- add_tag_matcher([array of arguments])
+
+ex:
+$args = array(
+    'tag_rule_uuid' => 'dfsfs09f0sd9f',
+    'key' => 'virtual',
+    'compare' => 'equal',
+    'value' => 'vmware',
+    'invert' => "false",
+);
+
+- get_tag_matcher([array of arguments])
+
+ex: 
+$args = array(
+    'tag_rule_uuid' => 'dfsfs09f0sd9f',
+    'key' => 'virtual',
+);
+
+- delete_tag_matcher([uuid of tag],[uiid of tag_matcher])
+
+
+
+Requirements:
+- Razor
+- curl
+- Pear Services_JSON() (PHP's built in json_decode does not play nicely with Razor's API)
