@@ -4,16 +4,18 @@ require 'JSON.php'; // Built in json_decode is BROKEN by razor JSON responses
 class razor
 {   
     
-    protected $apiConfig = array(
-      'url' => "http://localhost:8026/razor/api/",
-    );
+    var $apiConfig;
 
     protected $json;
     
     /* ------------------------------------------------------------------------------------------------------- */
     
-    public function __construct()
+    public function __construct($apiConfig)
     {
+		$this->apiConfig = $apiConfig;
+		
+		if(!$this->apiConfig) { return false; }
+		
         $this->json = new Services_JSON(SERVICES_JSON_LOOSE_TYPE);
     }
     
@@ -117,7 +119,7 @@ class razor
         $results = null;
         $errMsg = null;
         
-        $url = $this->apiConfig['url'] . "node/$uuid";
+        $url = $this->apiConfig['razor_url'] . "node/$uuid";
         
         if(!$this->http_get($url,$results,$errMsg))
         {
@@ -136,8 +138,10 @@ class razor
         $results = null;
         $errMsg = null;
             
-        $url = $this->apiConfig['url'] . "tag/";
+        $url = $this->apiConfig['razor_url'] . "tag/";
         
+		$returnTags = array();
+		
         if(!$this->http_get($url,$results,$errMsg))
         {
             echo($errMsg);
@@ -149,14 +153,16 @@ class razor
             foreach($results as $tags)
             {
                 $tagInfo = $this->get_tag($tags['@uuid']);
-                if($tagInfo['@tag'] == $tag )
-                {
-                    return $tags['@uuid'];
-                }
-                
+
+				if($tagInfo['@tag'] == $tag )
+				{
+					$returnTags[] = $tags['@uuid'];
+				}
             }
         }
         
+		if(count($returnTags) > 0 ) { return $returnTags; }
+		
         return false;
     }
 
@@ -168,7 +174,7 @@ class razor
         $results = null;
         $errMsg = null;
         
-        $url = $this->apiConfig['url'] . "tag/$tag";
+        $url = $this->apiConfig['razor_url'] . "tag/$tag";
         
         if(!$this->http_get($url,$results,$errMsg))
         {
@@ -176,14 +182,7 @@ class razor
         }
         else
         {
-            if($tag != "")
-            {
-                return reset($results);
-            }
-            else
-            {
-                return $results;
-            }
+			return reset($results);
         }
     }
 
@@ -196,7 +195,7 @@ class razor
         
         if(!$args['name'] or !$args['tag']) { return false; }
         
-        $url = $this->apiConfig['url'] . "tag";
+        $url = $this->apiConfig['razor_url'] . "tag";
         
         if(!$this->http_post($url,$args,$results,$errMsg))
         {
@@ -218,7 +217,7 @@ class razor
         
         if(!$tag) { return false; }
         
-        $url = $this->apiConfig['url'] . "tag/" . $tag;
+        $url = $this->apiConfig['razor_url'] . "tag/" . $tag;
         
         if(!$this->http_delete($url,$results,$errMsg))
         {
@@ -241,7 +240,7 @@ class razor
         
         if(!$this->get_tag($args['tag_rule_uuid'])) { return false; }
         
-        $url = $this->apiConfig['url'] . "tag/" . $args['tag_rule_uuid'] . "/matcher";
+        $url = $this->apiConfig['razor_url'] . "tag/" . $args['tag_rule_uuid'] . "/matcher";
 
         if(!$this->http_post($url,$args,$results,$errMsg))
         {
@@ -265,9 +264,9 @@ class razor
         if(!$args['tag_rule_uuid']) { return false; }        
         if(!$this->get_tag($args['tag_rule_uuid'])) { return false; }
 
-        if(!$args['key']) { return false; }
+        if(!@$args['key']) { return false; }
         
-        $url = $this->apiConfig['url'] . "tag/" . $args['tag_rule_uuid'];
+        $url = $this->apiConfig['razor_url'] . "tag/" . $args['tag_rule_uuid'];
 
         if(!$this->http_get($url,$results,$errMsg))
         {
@@ -300,7 +299,7 @@ class razor
         
         if(!$tag_matcher) { return false; }
         if(!$tag) { return false; }                
-        $url = $this->apiConfig['url'] . "tag/$tag/matcher/$tag_matcher";
+        $url = $this->apiConfig['razor_url'] . "tag/$tag/matcher/$tag_matcher";
 
         if(!$this->http_delete($url,$results,$errMsg))
         {
